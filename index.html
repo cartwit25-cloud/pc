@@ -820,7 +820,7 @@ const PIE_SEGMENTS = [
   { key: 'medical', label: '醫療', color: '#B8DDB8', emoji: '💊',
     desc: '涵蓋疾病住院、手術、意外傷害與癌症三大面向。\n・日額給付：住院期間每日定額給付，補償因無法上班造成的薪資損失，讓生病不影響家庭收入。\n・實支實付：依實際收據核銷，補償住院期間的龐大醫療支出，讓你安心選擇更好的醫療品質，不必為費用妥協。' },
   { key: 'longcare', label: '長照', color: '#F5C89A', emoji: '🤲',
-    desc: '無論是意外、疾病或自然老化，只要面臨長期需要照護的狀況，每月定期給付照護費用。讓家人不必在「陪伴」與「工作」之間兩難，安心守護，無後顧之憂。（需年滿15歲方可規劃）' },
+    desc: '無論是意外、疾病或自然老化，只要面臨長期需要照護的狀況，每月定期給付照護費用。讓家人不必在「陪伴」與「工作」之間兩難，安心守護，無後顧之憂。' },
   { key: 'life', label: '壽險', color: '#F2C4CE', emoji: '❤️',
     desc: '身故保障讓家人不必在遭逢變故時，還要承受財務上的壓力。確保家人能獲得足夠的財務支撐，讓家庭生活、房貸與其他責任都有所依靠。' },
   { key: 'invest', label: '理財', color: '#D4C4E8', emoji: '💰',
@@ -902,6 +902,8 @@ let PLANS = {
 let selectedPlanType = 'A';
 let selectedLevel = null;
 let activePieKey = null;
+let showPlanA = true;
+let showPlanB = true;
 
 // ── Detail card list (replaces mini pie) ──
 function buildDetailCards(plan, isA) {
@@ -1024,7 +1026,7 @@ function selectPlanType(type) {
 // ── Plan Cards ──
 function renderPlanCards() {
   const container = document.getElementById('planCards');
-  const levels = ['eco', 'basic', 'comfort'];
+  const levels = ['eco', 'basic', 'comfort'].filter(level => PLANS[selectedPlanType][level]?.visible !== false);
   container.innerHTML = levels.map(level => {
     const plan = PLANS[selectedPlanType][level];
     const isA = selectedPlanType === 'A';
@@ -1130,6 +1132,21 @@ async function loadRemoteConfig() {
           }
         });
       });
+    }
+
+    showPlanA = data.showPlanA !== false;
+    showPlanB = data.showPlanB !== false;
+
+    const btnA = document.getElementById('btnA');
+    const btnB = document.getElementById('btnB');
+    if (btnA) btnA.style.display = showPlanA ? '' : 'none';
+    if (btnB) btnB.style.display = showPlanB ? '' : 'none';
+
+    // 如果目前選到的大類被後台關掉了，自動切到另一個還開著的大類
+    if (selectedPlanType === 'A' && !showPlanA && showPlanB) {
+      selectPlanType('B');
+    } else if (selectedPlanType === 'B' && !showPlanB && showPlanA) {
+      selectPlanType('A');
     }
   } catch (err) {
     console.warn('讀取後台設定失敗，改用頁面內建的預設內容', err);
