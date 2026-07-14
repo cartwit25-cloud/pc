@@ -1,0 +1,1189 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>王小姐的保單需求分析</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@300;400;500;700&display=swap');
+
+  :root {
+    --cream: #FBF8F3;
+    --soft-blue: #B8D4E8;
+    --soft-green: #B8DDB8;
+    --soft-yellow: #F5E6A3;
+    --soft-pink: #F2C4CE;
+    --soft-purple: #D4C4E8;
+    --soft-orange: #F5C89A;
+    --accent: #4A90A4;
+    --accent-dark: #2C6E7F;
+    --text-dark: #2D2D2D;
+    --text-mid: #555;
+    --text-light: #888;
+    --white: #FFFFFF;
+    --radius: 16px;
+    --shadow: 0 4px 20px rgba(0,0,0,0.08);
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'Noto Sans TC', sans-serif;
+    background: var(--cream);
+    color: var(--text-dark);
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* ── Header ── */
+  .header {
+    background: linear-gradient(135deg, #B8D4E8 0%, #D4C4E8 100%);
+    padding: 40px 20px 30px;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+  }
+  .header::before {
+    content: '';
+    position: absolute;
+    width: 180px; height: 180px;
+    background: rgba(255,255,255,0.2);
+    border-radius: 50%;
+    top: -60px; right: -40px;
+  }
+  .header::after {
+    content: '';
+    position: absolute;
+    width: 120px; height: 120px;
+    background: rgba(255,255,255,0.15);
+    border-radius: 50%;
+    bottom: -30px; left: -30px;
+  }
+  .header-emoji { font-size: 48px; margin-bottom: 8px; }
+  .header h1 {
+    font-size: 22px;
+    font-weight: 700;
+    color: var(--text-dark);
+    letter-spacing: 2px;
+    margin-bottom: 6px;
+  }
+  .header p {
+    font-size: 13px;
+    color: var(--text-mid);
+    line-height: 1.6;
+    max-width: 300px;
+    margin: 0 auto;
+  }
+
+  /* ── Section wrapper ── */
+  .section {
+    padding: 28px 16px;
+  }
+  .section-title {
+    font-size: 16px;
+    font-weight: 700;
+    color: var(--accent-dark);
+    margin-bottom: 16px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .section-title::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: linear-gradient(to right, var(--accent), transparent);
+  }
+
+  /* ── Intro cards ── */
+  .intro-card {
+    background: var(--white);
+    border-radius: var(--radius);
+    padding: 20px;
+    margin-bottom: 12px;
+    box-shadow: var(--shadow);
+    border-left: 4px solid var(--soft-blue);
+  }
+  .intro-card.highlight {
+    background: linear-gradient(135deg, #EBF5FF, #F0EBFF);
+    border-left-color: var(--accent);
+  }
+  .intro-card h3 {
+    font-size: 14px;
+    font-weight: 700;
+    margin-bottom: 8px;
+    color: var(--accent-dark);
+  }
+  .intro-card p {
+    font-size: 13px;
+    line-height: 1.7;
+    color: var(--text-mid);
+  }
+  .tag {
+    display: inline-block;
+    background: var(--accent);
+    color: white;
+    font-size: 11px;
+    padding: 2px 8px;
+    border-radius: 20px;
+    margin-bottom: 8px;
+  }
+
+  /* ── Pie Chart ── */
+  .pie-section {
+    background: var(--white);
+    border-radius: var(--radius);
+    padding: 24px 16px;
+    box-shadow: var(--shadow);
+    text-align: center;
+  }
+  .pie-container {
+    position: relative;
+    width: 220px;
+    height: 220px;
+    margin: 0 auto 16px;
+  }
+  .pie-svg { width: 100%; height: 100%; }
+  .pie-center-text {
+    position: absolute;
+    top: 50%; left: 50%;
+    transform: translate(-50%, -50%);
+    text-align: center;
+    pointer-events: none;
+  }
+  .pie-center-text .emoji { font-size: 28px; }
+  .pie-center-text .label { font-size: 11px; color: var(--text-light); margin-top: 2px; }
+
+  /* Info popup */
+  .pie-info {
+    background: linear-gradient(135deg, #EBF5FF, #F0EBFF);
+    border-radius: 12px;
+    padding: 16px;
+    margin-top: 12px;
+    text-align: left;
+    min-height: 60px;
+    transition: all 0.3s ease;
+  }
+  .pie-info h4 { font-size: 14px; font-weight: 700; color: var(--accent-dark); margin-bottom: 6px; }
+  .pie-info p { font-size: 12px; line-height: 1.7; color: var(--text-mid); }
+  .pie-info.empty { text-align: center; color: var(--text-light); font-size: 13px; padding-top: 18px; }
+
+  /* Legend */
+  .pie-legend {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+    margin-top: 16px;
+  }
+  .legend-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 12px;
+    cursor: pointer;
+    padding: 6px 8px;
+    border-radius: 8px;
+    transition: background 0.2s;
+  }
+  .legend-item:hover { background: rgba(0,0,0,0.04); }
+  .legend-item.active { background: rgba(74,144,164,0.1); }
+  .legend-dot {
+    width: 12px; height: 12px;
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+
+  /* ── Plan selector ── */
+  .plan-section { padding: 0 16px 28px; }
+
+  .plan-type-toggle {
+    display: flex;
+    background: var(--white);
+    border-radius: 12px;
+    padding: 4px;
+    box-shadow: var(--shadow);
+    margin-bottom: 20px;
+  }
+  .plan-type-btn {
+    flex: 1;
+    padding: 10px;
+    border: none;
+    background: transparent;
+    border-radius: 10px;
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--text-light);
+    cursor: pointer;
+    transition: all 0.2s;
+    font-family: 'Noto Sans TC', sans-serif;
+  }
+  .plan-type-btn.active {
+    background: var(--accent);
+    color: white;
+    box-shadow: 0 2px 8px rgba(74,144,164,0.35);
+  }
+
+  .plan-cards {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+  .plan-card {
+    background: var(--white);
+    border-radius: var(--radius);
+    padding: 20px;
+    box-shadow: var(--shadow);
+    border: 2px solid transparent;
+    cursor: pointer;
+    transition: all 0.25s;
+    position: relative;
+    overflow: hidden;
+  }
+  .plan-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 4px;
+  }
+  .plan-card.eco::before { background: var(--soft-green); }
+  .plan-card.basic::before { background: var(--soft-blue); }
+  .plan-card.comfort::before { background: var(--soft-purple); }
+
+  .plan-card.selected { border-color: var(--accent); }
+  .plan-card.eco.selected::before { background: var(--accent); }
+  .plan-card.basic.selected::before { background: var(--accent); }
+  .plan-card.comfort.selected::before { background: var(--accent); }
+
+  .plan-card-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 12px;
+  }
+  .plan-badge {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .plan-badge-emoji { font-size: 22px; }
+  .plan-name { font-size: 15px; font-weight: 700; }
+  .plan-check {
+    width: 22px; height: 22px;
+    border-radius: 50%;
+    border: 2px solid #DDD;
+    display: flex; align-items: center; justify-content: center;
+    transition: all 0.2s;
+  }
+  .plan-card.selected .plan-check {
+    background: var(--accent);
+    border-color: var(--accent);
+    color: white;
+    font-size: 13px;
+  }
+
+  .plan-highlights {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 6px;
+  }
+  .plan-highlight-item {
+    background: var(--cream);
+    border-radius: 8px;
+    padding: 8px 10px;
+  }
+  .plan-highlight-item .label { font-size: 10px; color: var(--text-light); margin-bottom: 2px; }
+  .plan-highlight-item .value { font-size: 12px; font-weight: 600; color: var(--text-dark); }
+
+  .plan-detail-toggle {
+    margin-top: 12px;
+    font-size: 12px;
+    color: var(--accent);
+    cursor: pointer;
+    text-align: center;
+    padding: 6px;
+  }
+  .plan-detail {
+    display: none;
+    margin-top: 10px;
+    border-top: 1px solid #EEE;
+    padding-top: 10px;
+  }
+  .plan-detail.open { display: block; }
+  .detail-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    padding: 5px 0;
+    border-bottom: 1px solid #F5F5F5;
+    font-size: 12px;
+  }
+  .detail-row:last-child { border-bottom: none; }
+  .detail-row .d-label { color: var(--text-light); flex-shrink: 0; margin-right: 8px; }
+  .detail-row .d-value { color: var(--text-dark); text-align: right; font-weight: 500; }
+
+  /* ── Detail card list ── */
+  .detail-card-list { display: flex; flex-direction: column; gap: 8px; margin-top: 12px; }
+  .detail-card-row {
+    display: flex;
+    align-items: stretch;
+    border-radius: 10px;
+    overflow: hidden;
+    background: var(--white);
+    min-height: 52px;
+  }
+  .detail-card-bar { width: 4px; flex-shrink: 0; }
+  .detail-card-body { flex: 1; padding: 10px 12px; position: relative; }
+  .detail-card-label { font-size: 10px; color: var(--text-light); margin-bottom: 3px; }
+  .detail-card-value { font-size: 12px; font-weight: 600; color: var(--text-dark); line-height: 1.5; }
+  .detail-card-badge {
+    position: absolute;
+    top: 8px; right: 10px;
+    font-size: 10px; padding: 2px 7px;
+    border-radius: 8px; background: var(--accent);
+    color: white; flex-shrink: 0;
+  }
+  .detail-hosp-row {
+    display: flex; gap: 6px; margin-top: 8px;
+  }
+  .detail-hosp-item {
+    flex: 1; text-align: center; border-radius: 10px; padding: 8px 4px;
+  }
+  .detail-hosp-item .dh-label { font-size: 10px; color: var(--text-light); margin-bottom: 3px; }
+  .detail-hosp-item .dh-value { font-size: 15px; font-weight: 700; color: var(--accent-dark); }
+
+  /* Hospital summary */
+  .hospital-summary {
+    display: flex;
+    gap: 6px;
+    margin-top: 10px;
+    background: linear-gradient(135deg, #EBF5FF, #F0EBFF);
+    border-radius: 10px;
+    padding: 10px;
+  }
+  .hosp-item { flex: 1; text-align: center; }
+  .hosp-item .h-label { font-size: 10px; color: var(--text-light); margin-bottom: 2px; }
+  .hosp-item .h-value { font-size: 13px; font-weight: 700; color: var(--accent-dark); }
+
+  /* ── Landscape / RWD ── */
+  @media (orientation: landscape) and (max-height: 500px) {
+    .header { padding: 20px 20px 16px; }
+    .header-emoji { font-size: 32px; margin-bottom: 4px; }
+    .header h1 { font-size: 18px; }
+    .pie-container { width: 160px; height: 160px; }
+    .plan-cards { display: grid; grid-template-columns: 1fr 1fr; }
+    .section { padding: 16px; }
+  }
+  @media (min-width: 600px) {
+    .plan-cards { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+    .pie-container { width: 260px; height: 260px; }
+    .header h1 { font-size: 26px; }
+  }
+  @media (min-width: 900px) {
+    body { max-width: 600px; margin: 0 auto; }
+  }
+  .waiver-card {
+    background: var(--white);
+    border-radius: var(--radius);
+    padding: 18px 20px;
+    box-shadow: var(--shadow);
+    margin-top: 16px;
+    display: flex;
+    align-items: flex-start;
+    gap: 14px;
+  }
+  .waiver-icon { font-size: 28px; flex-shrink: 0; }
+  .waiver-text h4 { font-size: 14px; font-weight: 700; margin-bottom: 4px; }
+  .waiver-text p { font-size: 12px; color: var(--text-mid); line-height: 1.6; }
+  .toggle-switch {
+    position: relative;
+    width: 46px; height: 26px;
+    flex-shrink: 0;
+    margin-left: auto;
+    align-self: center;
+  }
+  .toggle-switch input { opacity: 0; width: 0; height: 0; }
+  .toggle-slider {
+    position: absolute;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: #CCC;
+    border-radius: 26px;
+    cursor: pointer;
+    transition: .3s;
+  }
+  .toggle-slider::before {
+    content: '';
+    position: absolute;
+    width: 20px; height: 20px;
+    left: 3px; bottom: 3px;
+    background: white;
+    border-radius: 50%;
+    transition: .3s;
+  }
+  .toggle-switch input:checked + .toggle-slider { background: var(--accent); }
+  .toggle-switch input:checked + .toggle-slider::before { transform: translateX(20px); }
+
+  /* ── Rate explanation ── */
+  .rate-section {
+    padding: 0 16px 28px;
+  }
+  .rate-card {
+    background: var(--white);
+    border-radius: var(--radius);
+    padding: 20px;
+    box-shadow: var(--shadow);
+  }
+  .rate-chart {
+    position: relative;
+    height: 140px;
+    margin: 16px 0 8px;
+  }
+  .rate-chart svg { width: 100%; height: 100%; }
+  .rate-labels {
+    display: flex;
+    justify-content: space-between;
+    font-size: 11px;
+    color: var(--text-light);
+    margin-bottom: 12px;
+  }
+  .rate-legend {
+    display: flex;
+    gap: 16px;
+    justify-content: center;
+    margin-top: 8px;
+  }
+  .rate-legend-item {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 12px;
+  }
+  .rate-legend-line {
+    width: 24px; height: 3px;
+    border-radius: 2px;
+  }
+  .rate-note {
+    background: linear-gradient(135deg, #EBF5FF, #F0EBFF);
+    border-radius: 10px;
+    padding: 12px;
+    margin-top: 12px;
+    font-size: 12px;
+    color: var(--text-mid);
+    line-height: 1.7;
+  }
+  .rate-note strong { color: var(--accent-dark); }
+
+  /* ── Result section ── */
+  .result-section {
+    padding: 0 16px 28px;
+  }
+  .result-card {
+    background: var(--white);
+    border-radius: var(--radius);
+    padding: 24px 20px;
+    box-shadow: var(--shadow);
+  }
+  .result-header {
+    text-align: center;
+    margin-bottom: 20px;
+  }
+  .result-header h3 { font-size: 18px; font-weight: 700; color: var(--accent-dark); }
+  .result-header .sub { font-size: 12px; color: var(--text-light); margin-top: 4px; }
+
+  .result-item {
+    border-radius: 12px;
+    padding: 14px 16px;
+    margin-bottom: 10px;
+  }
+  .result-item.critical { background: linear-gradient(135deg, #EBF5FF, #E8F5FF); }
+  .result-item.medical { background: linear-gradient(135deg, #EBFFF0, #E8FFF5); }
+  .result-item.waiver-r { background: linear-gradient(135deg, #FFF8EB, #FFF5E8); }
+
+  .result-item-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 8px;
+  }
+  .result-item-title { font-size: 13px; font-weight: 700; color: var(--text-dark); }
+  .result-item-badge {
+    font-size: 11px;
+    padding: 2px 8px;
+    border-radius: 10px;
+    background: var(--accent);
+    color: white;
+  }
+
+  .result-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 6px;
+  }
+  .result-grid-item { background: rgba(255,255,255,0.7); border-radius: 8px; padding: 8px; }
+  .result-grid-item .rg-label { font-size: 10px; color: var(--text-light); margin-bottom: 2px; }
+  .result-grid-item .rg-value { font-size: 12px; font-weight: 600; color: var(--text-dark); }
+
+  .result-hospital-bar {
+    display: flex;
+    gap: 6px;
+    margin-top: 8px;
+  }
+  .rhb-item {
+    flex: 1;
+    text-align: center;
+    background: rgba(255,255,255,0.7);
+    border-radius: 8px;
+    padding: 8px 4px;
+  }
+  .rhb-item .rh-label { font-size: 10px; color: var(--text-light); margin-bottom: 2px; }
+  .rhb-item .rh-value { font-size: 13px; font-weight: 700; color: var(--accent-dark); }
+
+  /* ── Form ── */
+  .form-section {
+    padding: 0 16px 40px;
+  }
+  .form-card {
+    background: var(--white);
+    border-radius: var(--radius);
+    padding: 24px 20px;
+    box-shadow: var(--shadow);
+  }
+  .form-group { margin-bottom: 16px; }
+  .form-label {
+    display: block;
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--text-dark);
+    margin-bottom: 6px;
+  }
+  .form-label .req { color: #E05C5C; margin-left: 2px; }
+  .form-label .opt { color: var(--text-light); font-size: 11px; margin-left: 4px; }
+  .form-input {
+    width: 100%;
+    padding: 12px 14px;
+    border: 1.5px solid #E0E0E0;
+    border-radius: 10px;
+    font-size: 14px;
+    font-family: 'Noto Sans TC', sans-serif;
+    color: var(--text-dark);
+    background: var(--cream);
+    transition: border 0.2s;
+    -webkit-appearance: none;
+  }
+  .form-input:focus { outline: none; border-color: var(--accent); background: white; }
+
+  .submit-btn {
+    width: 100%;
+    padding: 16px;
+    background: linear-gradient(135deg, var(--accent), var(--accent-dark));
+    color: white;
+    border: none;
+    border-radius: 12px;
+    font-size: 16px;
+    font-weight: 700;
+    font-family: 'Noto Sans TC', sans-serif;
+    cursor: pointer;
+    margin-top: 8px;
+    box-shadow: 0 4px 16px rgba(74,144,164,0.35);
+    transition: transform 0.15s, box-shadow 0.15s;
+  }
+  .submit-btn:active { transform: scale(0.98); box-shadow: 0 2px 8px rgba(74,144,164,0.25); }
+  .submit-btn:disabled { opacity: 0.6; pointer-events: none; }
+
+  .contact-note {
+    text-align: center;
+    font-size: 12px;
+    color: var(--text-light);
+    margin-top: 14px;
+    line-height: 1.6;
+  }
+  .contact-note strong { color: var(--accent-dark); }
+
+  /* ── Toast ── */
+  .toast {
+    position: fixed;
+    bottom: 30px; left: 50%;
+    transform: translateX(-50%) translateY(80px);
+    background: #2D2D2D;
+    color: white;
+    padding: 12px 20px;
+    border-radius: 24px;
+    font-size: 13px;
+    transition: transform 0.3s;
+    z-index: 999;
+    white-space: nowrap;
+  }
+  .toast.show { transform: translateX(-50%) translateY(0); }
+
+  /* No selection state */
+  .no-selection {
+    text-align: center;
+    padding: 30px 20px;
+    color: var(--text-light);
+    font-size: 13px;
+  }
+  .no-selection .icon { font-size: 36px; margin-bottom: 8px; }
+
+  /* Divider */
+  .divider {
+    height: 8px;
+    background: linear-gradient(to right, #EEE, #E0E0E0, #EEE);
+    margin: 0;
+  }
+</style>
+</head>
+<body>
+
+<!-- ── HEADER ── -->
+<div class="header">
+  <div class="header-emoji">🛡️</div>
+  <h1 id="pageTitle">保單需求分析</h1>
+  <p>為你量身規劃，一起找到最適合的保障組合</p>
+</div>
+
+<!-- ── INTRO ── -->
+<div class="section">
+  <div class="section-title">💡 為什麼要趁早規劃</div>
+
+  <div class="intro-card">
+    <h3>🔒 平準費率｜這輩子的保費不會變</h3>
+    <p>我們幾乎所有商品都是<strong>平準費率</strong>——從投保那天起到保障結束，保費固定不變。越早規劃，鎖定的保費就越低，這是給自己最實在的禮物。</p>
+  </div>
+</div>
+
+<!-- ── PIE CHART ── -->
+<div class="section" style="padding-top: 0;">
+  <div class="section-title">🥧 保障地圖</div>
+  <div class="pie-section">
+    <div class="pie-container">
+      <svg class="pie-svg" viewBox="0 0 200 200" id="pieChart"></svg>
+      <div class="pie-center-text">
+        <div class="emoji">👶</div>
+        <div class="label">點選查看</div>
+      </div>
+    </div>
+
+    <div class="pie-info empty" id="pieInfo">
+      點選圓餅圖中的區塊<br>了解各項保障說明
+    </div>
+
+    <div class="pie-legend" id="pieLegend"></div>
+  </div>
+</div>
+
+<div class="divider"></div>
+
+<!-- ── PLAN SELECTOR ── -->
+<div class="section">
+  <div class="section-title">📋 選擇你的方案</div>
+</div>
+<div class="plan-section">
+  <div class="plan-type-toggle">
+    <button class="plan-type-btn active" onclick="selectPlanType('A')" id="btnA">重大傷病 ＋ 醫療</button>
+    <button class="plan-type-btn" onclick="selectPlanType('B')" id="btnB">終身醫療</button>
+  </div>
+
+  <div class="plan-cards" id="planCards"></div>
+
+  <!-- Waiver -->
+  <div class="waiver-card">
+    <div class="waiver-icon">🛡️</div>
+    <div class="waiver-text">
+      <h4>加購豁免保費</h4>
+      <p>萬一被保人身故、失能或罹患重大疾病，整張保單在30年期間免繳保費，保障持續有效。</p>
+    </div>
+    <label class="toggle-switch">
+      <input type="checkbox" id="waiverToggle" onchange="updateResult()">
+      <span class="toggle-slider"></span>
+    </label>
+  </div>
+</div>
+
+<div class="divider"></div>
+
+<!-- ── RATE EXPLANATION ── -->
+<div class="section">
+  <div class="section-title">📈 費率說明</div>
+</div>
+<div class="rate-section">
+  <div class="rate-card">
+    <p style="font-size:13px; color: var(--text-mid); line-height:1.6; margin-bottom:4px;">保費結構影響你<strong style="color:var(--accent-dark)">一輩子</strong>的總支出</p>
+    <div class="rate-chart">
+      <svg viewBox="0 0 320 130" xmlns="http://www.w3.org/2000/svg">
+        <!-- Axes -->
+        <line x1="40" y1="10" x2="40" y2="110" stroke="#EEE" stroke-width="1"/>
+        <line x1="40" y1="110" x2="300" y2="110" stroke="#EEE" stroke-width="1"/>
+        <!-- Single arc: control point calculated for crossover at x=161 -->
+        <path d="M40,75 Q250,70 300,4" fill="none" stroke="#F5A623" stroke-width="2.5" stroke-linecap="round"/>
+        <!-- Level rate line -->
+        <line x1="40" y1="65" x2="300" y2="65" stroke="#4CAF50" stroke-width="2.5" stroke-linecap="round"/>
+        <!-- Crossover dot at mathematically correct position -->
+        <circle cx="161.5" cy="65" r="4" fill="white" stroke="#888" stroke-width="1.5"/>
+        <!-- Axis labels -->
+        <text x="8" y="114" font-size="9" fill="#999">0歲</text>
+        <text x="278" y="114" font-size="9" fill="#999">80歲</text>
+        <!-- Annotations -->
+        <text x="228" y="20" font-size="9" fill="#F5A623" font-weight="bold">自然費率</text>
+        <text x="228" y="31" font-size="9" fill="#888">（同業）</text>
+        <text x="46" y="58" font-size="9" fill="#4CAF50" font-weight="bold">平準費率（富邦）</text>
+      </svg>
+    </div>
+    <div class="rate-labels">
+      <span>出生</span>
+      <span>↑ 交叉點後，自然費率越來越貴</span>
+      <span>老年</span>
+    </div>
+    <div class="rate-legend">
+      <div class="rate-legend-item">
+        <div class="rate-legend-line" style="background:#F5A623"></div>
+        <span style="font-size:12px">自然費率（同業）</span>
+      </div>
+      <div class="rate-legend-item">
+        <div class="rate-legend-line" style="background:#4CAF50"></div>
+        <span style="font-size:12px">平準費率（富邦）</span>
+      </div>
+    </div>
+    <div class="rate-note">
+      自然費率在年輕時保費較低，但隨著年齡增長<strong>越繳越貴</strong>，中年過後負擔往往很重，甚至可能因為繳不起保費而失去保障。<br><br>
+      平準費率從頭到尾<strong>保費固定</strong>，越早規劃、鎖定的費率就越低，長期總繳費也更划算。
+    </div>
+  </div>
+</div>
+
+<div class="divider"></div>
+
+<!-- ── RESULT ── -->
+<div class="section">
+  <div class="section-title">🎯 你的保障內容</div>
+</div>
+<div class="result-section">
+  <div class="result-card" id="resultCard">
+    <div class="no-selection">
+      <div class="icon">☝️</div>
+      請先在上方選擇方案<br>這裡會顯示完整保障內容
+    </div>
+  </div>
+</div>
+
+<div id="contactSection">
+<div class="divider"></div>
+
+<!-- ── FORM ── -->
+<div class="section">
+  <div class="section-title">📬 留下聯絡方式</div>
+</div>
+<div class="form-section">
+  <div class="form-card">
+    <p style="font-size:13px; color:var(--text-mid); margin-bottom:20px; line-height:1.6;">填寫完成後，婷雯會依照您的選擇提供詳細報價。</p>
+
+    <div class="form-group">
+      <label class="form-label">您的稱呼 <span class="req">*</span></label>
+      <input class="form-input" type="text" id="fName" placeholder="例：王小姐 / 陳先生">
+    </div>
+    <div class="form-group">
+      <label class="form-label">Line ID <span class="req">*</span></label>
+      <input class="form-input" type="text" id="fLine" placeholder="請輸入您的 Line ID">
+    </div>
+    <div class="form-group">
+      <label class="form-label">手機末四碼 <span class="req">*</span><span class="opt">（方便辨識您的身份）</span></label>
+      <input class="form-input" type="tel" id="fPhone" placeholder="例：5678" maxlength="4">
+    </div>
+    <div class="form-group">
+      <label class="form-label">您的出生年月日 <span class="req">*</span></label>
+      <input class="form-input" type="date" id="fOwnerBirth">
+    </div>
+
+    <button class="submit-btn" onclick="submitForm()" id="submitBtn">送出需求，請婷雯報價 🛡️</button>
+
+    <p class="contact-note">
+      送出後，婷雯將透過 Line 與您聯繫<br>
+      Line ID：<strong>viola902</strong>
+    </p>
+  </div>
+</div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// ── Data ──
+// Pie segment order: top going clockwise
+// Left side of pie (positions 3,4,5 = indices 2,3,4 when starting from top):
+// 重大傷病(top-right→right), 醫療(right→bottom-right), 長照(bottom-right→bottom)
+// Right side legend col: 長照, 壽險, 理財 — left col: 重大傷病, 醫療, 退休
+// We want left legend = left pie side, right legend = right pie side
+// Segments ordered clockwise from top: 重大傷病, 醫療, 長照, 壽險, 理財, 退休
+// Legend grid 2-col: [重大傷病, 壽險] [醫療, 理財] [長照, 退休]
+// To get left=left, right=right in a 2-col grid, order: 重大傷病, 壽險, 醫療, 理財, 長照, 退休
+const PIE_SEGMENTS = [
+  { key: 'critical', label: '重大傷病', color: '#B8D4E8', emoji: '🏥',
+    desc: '只要拿到健保署核發的重大傷病卡，就符合理賠標準，涵蓋300項以上疾病（含癌症、慢性精神病等）。一次性給付，不看收據、不限用途，可立刻解決收入中斷的燃眉之急。' },
+  { key: 'medical', label: '醫療', color: '#B8DDB8', emoji: '💊',
+    desc: '涵蓋疾病住院、手術、意外傷害與癌症三大面向。\n・日額給付：住院期間每日定額給付，補償因無法上班造成的薪資損失，讓生病不影響家庭收入。\n・實支實付：依實際收據核銷，補償住院期間的龐大醫療支出，讓你安心選擇更好的醫療品質，不必為費用妥協。' },
+  { key: 'longcare', label: '長照', color: '#F5C89A', emoji: '🤲',
+    desc: '無論是意外、疾病或自然老化，只要面臨長期需要照護的狀況，每月定期給付照護費用。讓家人不必在「陪伴」與「工作」之間兩難，安心守護，無後顧之憂。（需年滿15歲方可規劃）' },
+  { key: 'life', label: '壽險', color: '#F2C4CE', emoji: '❤️',
+    desc: '身故保障讓家人不必在遭逢變故時，還要承受財務上的壓力。確保家人能獲得足夠的財務支撐，讓家庭生活、房貸與其他責任都有所依靠。' },
+  { key: 'invest', label: '理財', color: '#D4C4E8', emoji: '💰',
+    desc: '兼具保障與儲蓄功能，適合規劃子女教育金、購屋或其他人生目標，讓保費不只是支出，更是有計畫的累積。' },
+  { key: 'retire', label: '退休', color: '#F5E6A3', emoji: '🌅',
+    desc: '退休規劃越早準備越能放大效益，讓退休生活更有餘裕，晚年不必為經濟壓力煩惱，也不必造成子女負擔。' },
+];
+// Pie clockwise from top: 退休(top-left), 重大傷病(top-right), 醫療(right), 長照(bottom-right), 壽險(bottom-left), 理財(left)
+// Left half of pie: 退休, 理財, 壽險  → left legend column
+// Right half of pie: 重大傷病, 醫療, 長照 → right legend column
+// 2-col grid renders left col first: [退休, 重大傷病, 理財, 醫療, 壽險, 長照]
+const LEGEND_ORDER = ['retire','critical','invest','medical','life','longcare'];
+
+let PLANS = {
+  A: {
+    eco: {
+      name: '小資方案', emoji: '🌱',
+      critical: '30萬',
+      daily: '日額 2,000/日，定額手術 2,200～240,000/次',
+      reimbursement: '病房費 3,000/日，手術 3,200～400,000/次，雜費 300,000/次',
+      accident: '身故/失能 100萬，住院 2,000/日，實支 100,000/次，骨折 15,000～400,000',
+      cancer: '住院 3,600/日，放化療 2,000/次，手術(重度) 30,000/次，生存照顧金(重度) 40,000/年×8年',
+      hosp: { general: '5,000', accident: '7,000', cancer: '8,600' }
+    },
+    basic: {
+      name: '基本方案', emoji: '⭐',
+      critical: '50萬',
+      daily: '日額 2,000/日，定額手術 2,700～285,000/次',
+      reimbursement: '病房費 3,000/日，手術 3,200～400,000/次，雜費 300,000/次',
+      accident: '身故/失能 200萬，住院 2,000/日，實支 200,000/次，骨折 15,000～400,000',
+      cancer: '住院 5,400/日，放化療 3,000/次，手術(重度) 45,000/次，生存照顧金(重度) 60,000/年×8年',
+      hosp: { general: '5,000', accident: '7,000', cancer: '10,400' }
+    },
+    comfort: {
+      name: '安心方案', emoji: '🌟',
+      critical: '100萬',
+      daily: '日額 2,000/日，定額手術 3,200～330,000/次',
+      reimbursement: '病房費 3,000/日，手術 3,200～400,000/次，雜費 300,000/次',
+      accident: '身故/失能 200萬，住院 2,000/日，實支 200,000/次，骨折 15,000～400,000',
+      cancer: '住院 5,400/日，放化療 3,000/次，手術(重度) 45,000/次，生存照顧金(重度) 60,000/年×8年',
+      hosp: { general: '5,000', accident: '7,000', cancer: '10,400' }
+    }
+  },
+  B: {
+    eco: {
+      name: '小資方案', emoji: '🌱',
+      termNote: '1/3 定期 ＋ 2/3 終身',
+      termBadge: '部分終身',
+      daily: '日額 2,000/日，定額手術 2,800～294,000/次',
+      reimbursement: '病房費 3,000/日，手術 3,200～400,000/次，雜費 300,000/次',
+      accident: '身故/失能 100萬，住院 2,000/日，實支 100,000/次，骨折 9,000～240,000',
+      cancer: '住院 3,600/日，放化療 2,000/次，手術(重度) 30,000/次，生存照顧金(重度) 40,000/年×8年',
+      hosp: { general: '5,000', accident: '7,000', cancer: '8,600' }
+    },
+    basic: {
+      name: '基本方案', emoji: '⭐',
+      termNote: '1/2 定期(至90歲) ＋ 1/2 終身',
+      termBadge: '部分終身',
+      daily: '日額 2,000/日，定額手術 4,200～420,000/次',
+      reimbursement: '病房費 3,000/日，手術 3,200～400,000/次，雜費 300,000/次',
+      accident: '身故/失能 200萬，住院 2,000/日，實支 200,000/次，骨折 15,000～400,000',
+      cancer: '住院 5,400/日，放化療 3,000/次，手術(重度) 45,000/次，生存照顧金(重度) 60,000/年×8年',
+      hosp: { general: '5,000', accident: '7,000', cancer: '10,400' }
+    },
+    comfort: {
+      name: '安心方案', emoji: '🌟',
+      termNote: '全終身保障',
+      termBadge: '全終身',
+      daily: '日額 2,000/日，定額手術 4,200～420,000/次',
+      reimbursement: '病房費 3,000/日，手術 3,200～400,000/次，雜費 300,000/次',
+      accident: '身故/失能 200萬，住院 2,000/日，實支 200,000/次，骨折 15,000～400,000',
+      cancer: '住院 5,400/日，放化療 3,000/次，手術(重度) 45,000/次，生存照顧金(重度) 60,000/年×8年',
+      hosp: { general: '5,000', accident: '7,000', cancer: '10,400' }
+    }
+  }
+};
+
+// ── State ──
+let selectedPlanType = 'A';
+let selectedLevel = null;
+let activePieKey = null;
+
+// ── Detail card list (replaces mini pie) ──
+function buildDetailCards(plan, isA) {
+  const rows = [];
+
+  if (isA) {
+    rows.push({ color: '#B8D4E8', bg: '#EBF5FF', label: '🏥 重大傷病', value: plan.critical, badge: '終身' });
+    rows.push({ color: '#B8DDB8', bg: '#EBFFF0', label: '💊 日額 / 手術', value: plan.daily.replace('日額 2,000/日，', '日額 2,000/日\n'), badge: '至90歲' });
+    rows.push({ color: '#A8D8B0', bg: '#E8FFF0', label: '🧾 實支實付', value: '病房費 3,000/日\n手術 3,200～400,000/次　雜費 300,000/次', badge: '至80歲' });
+    rows.push({ color: '#F2C4CE', bg: '#FFF0F3', label: '🚑 意外險', value: plan.accident.replace('，', '\n').replace('，', '　').replace('，', '　'), badge: '至75歲' });
+    rows.push({ color: '#D4C4E8', bg: '#F5F0FF', label: '🎗️ 癌症險', value: plan.cancer.replace('，', '\n').replace('，', '　').replace('，', '\n'), badge: '至95歲' });
+  } else {
+    rows.push({ color: '#B8DDB8', bg: '#EBFFF0', label: '⚙️ 手術險規劃', value: plan.termNote, badge: plan.termBadge });
+    rows.push({ color: '#B8DDB8', bg: '#EBFFF0', label: '💊 日額 / 手術', value: plan.daily.replace('日額 2,000/日，', '日額 2,000/日\n'), badge: '至90歲＋終身' });
+    rows.push({ color: '#A8D8B0', bg: '#E8FFF0', label: '🧾 實支實付', value: '病房費 3,000/日\n手術 3,200～400,000/次　雜費 300,000/次', badge: '至80歲' });
+    rows.push({ color: '#F2C4CE', bg: '#FFF0F3', label: '🚑 意外險', value: plan.accident.replace('，', '\n').replace('，', '　').replace('，', '　'), badge: '至75歲' });
+    rows.push({ color: '#D4C4E8', bg: '#F5F0FF', label: '🎗️ 癌症險', value: plan.cancer.replace('，', '\n').replace('，', '　').replace('，', '\n'), badge: '至95歲' });
+  }
+
+  const hospColors = ['#B8DDB855','#F2C4CE55','#D4C4E855'];
+  const hospTextColors = ['#2C6E7F','#C0506A','#6A50A0'];
+
+  return `
+    <div class="detail-card-list">
+      ${rows.map(r => `
+        <div class="detail-card-row">
+          <div class="detail-card-bar" style="background:${r.color}"></div>
+          <div class="detail-card-body" style="background:${r.bg}">
+            <div class="detail-card-label">${r.label}</div>
+            <div class="detail-card-value">${r.value.replace(/\n/g, '<br>')}</div>
+            ${r.badge ? `<div class="detail-card-badge">${r.badge}</div>` : ''}
+          </div>
+        </div>`).join('')}
+    </div>
+    <div class="detail-hosp-row">
+      ${[['一般住院/日', plan.hosp.general],['意外住院/日', plan.hosp.accident],['癌症住院/日', plan.hosp.cancer]].map((h,i) => `
+        <div class="detail-hosp-item" style="background:${hospColors[i]}">
+          <div class="dh-label">${h[0]}</div>
+          <div class="dh-value" style="color:${hospTextColors[i]}">${h[1]}</div>
+        </div>`).join('')}
+    </div>`;
+}
+
+
+// ── Pie Chart ──
+function drawPie() {
+  const svg = document.getElementById('pieChart');
+  const cx = 100, cy = 100, r = 90, innerR = 45;
+  const n = PIE_SEGMENTS.length;
+  const angle = (2 * Math.PI) / n;
+  let html = '';
+
+  PIE_SEGMENTS.forEach((seg, i) => {
+    const startAngle = i * angle - Math.PI / 2;
+    const endAngle = startAngle + angle;
+    const x1 = cx + r * Math.cos(startAngle);
+    const y1 = cy + r * Math.sin(startAngle);
+    const x2 = cx + r * Math.cos(endAngle);
+    const y2 = cy + r * Math.sin(endAngle);
+    const ix1 = cx + innerR * Math.cos(startAngle);
+    const iy1 = cy + innerR * Math.sin(startAngle);
+    const ix2 = cx + innerR * Math.cos(endAngle);
+    const iy2 = cy + innerR * Math.sin(endAngle);
+    const midAngle = startAngle + angle / 2;
+    const lx = cx + (r * 0.65) * Math.cos(midAngle);
+    const ly = cy + (r * 0.65) * Math.sin(midAngle);
+
+    const d = `M${ix1},${iy1} L${x1},${y1} A${r},${r} 0 0,1 ${x2},${y2} L${ix2},${iy2} A${innerR},${innerR} 0 0,0 ${ix1},${iy1}`;
+    html += `<path d="${d}" fill="${seg.color}" stroke="white" stroke-width="2" style="cursor:pointer;transition:opacity 0.2s" 
+      onclick="selectPieSegment('${seg.key}')" id="pie_${seg.key}"/>`;
+    html += `<text x="${lx}" y="${ly - 7}" text-anchor="middle" dominant-baseline="middle" font-size="13" pointer-events="none">${seg.emoji}</text>`;
+    html += `<text x="${lx}" y="${ly + 8}" text-anchor="middle" dominant-baseline="middle" font-size="8.5" font-family="Noto Sans TC" fill="#444" pointer-events="none">${seg.label}</text>`;
+  });
+
+  svg.innerHTML = html;
+  drawLegend();
+}
+
+function drawLegend() {
+  const legend = document.getElementById('pieLegend');
+  legend.innerHTML = LEGEND_ORDER.map(key => {
+    const seg = PIE_SEGMENTS.find(s => s.key === key);
+    return `<div class="legend-item" id="leg_${seg.key}" onclick="selectPieSegment('${seg.key}')">
+      <div class="legend-dot" style="background:${seg.color}"></div>
+      <span>${seg.emoji} ${seg.label}</span>
+    </div>`;
+  }).join('');
+}
+
+function selectPieSegment(key) {
+  activePieKey = key;
+  const seg = PIE_SEGMENTS.find(s => s.key === key);
+  const info = document.getElementById('pieInfo');
+
+  // Dim all
+  PIE_SEGMENTS.forEach(s => {
+    const el = document.getElementById(`pie_${s.key}`);
+    const leg = document.getElementById(`leg_${s.key}`);
+    if (el) el.style.opacity = s.key === key ? '1' : '0.5';
+    if (leg) leg.classList.toggle('active', s.key === key);
+  });
+
+  const comingSoon = ['longcare', 'life', 'invest', 'retire'].includes(key);
+  info.className = 'pie-info';
+  info.innerHTML = comingSoon
+    ? `<h4>${seg.emoji} ${seg.label}</h4><p>${seg.desc}<br><br>📞 詳細規劃請諮詢婷雯（Line: viola902）</p>`
+    : `<h4>${seg.emoji} ${seg.label}</h4><p>${seg.desc}</p>`;
+}
+
+// ── Plan Type ──
+function selectPlanType(type) {
+  selectedPlanType = type;
+  selectedLevel = null;
+  document.getElementById('btnA').classList.toggle('active', type === 'A');
+  document.getElementById('btnB').classList.toggle('active', type === 'B');
+  renderPlanCards();
+  updateResult();
+}
+
+// ── Plan Cards ──
+function renderPlanCards() {
+  const container = document.getElementById('planCards');
+  const levels = ['eco', 'basic', 'comfort'];
+  container.innerHTML = levels.map(level => {
+    const plan = PLANS[selectedPlanType][level];
+    const isA = selectedPlanType === 'A';
+    const isSelected = selectedLevel === level;
+    return `
+    <div class="plan-card ${level} ${isSelected ? 'selected' : ''}" onclick="selectLevel('${level}')" id="card_${level}">
+      <div class="plan-card-header">
+        <div class="plan-badge">
+          <span class="plan-badge-emoji">${plan.emoji}</span>
+          <span class="plan-name">${plan.name}</span>
+        </div>
+        <div class="plan-check">${isSelected ? '✓' : ''}</div>
+      </div>
+      <div class="plan-highlights">
+        ${isA ? `<div class="plan-highlight-item"><div class="label">重大傷病保額</div><div class="value">${plan.critical}</div></div>` : 
+                 `<div class="plan-highlight-item"><div class="label">手術險規劃</div><div class="value">${plan.termNote}</div></div>`}
+        <div class="plan-highlight-item"><div class="label">癌症住院/日</div><div class="value">${plan.hosp.cancer}</div></div>
+        <div class="plan-highlight-item"><div class="label">意外身故/失能</div><div class="value">${isA ? plan.accident.split('，')[0].replace('身故/失能 ','') : plan.accident.split('，')[0].replace('身故/失能 ','')}</div></div>
+        <div class="plan-highlight-item"><div class="label">一般住院/日</div><div class="value">${plan.hosp.general}</div></div>
+      </div>
+      <div class="plan-detail-toggle" onclick="event.stopPropagation(); toggleDetail('${level}')">
+        查看完整保障 ▼
+      </div>
+      <div class="plan-detail" id="detail_${level}">
+        ${buildDetailCards(plan, selectedPlanType === 'A')}
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function selectLevel(level) {
+  selectedLevel = level;
+  renderPlanCards();
+  updateResult();
+}
+
+function toggleDetail(level) {
+  const el = document.getElementById(`detail_${level}`);
+  el.classList.toggle('open');
+}
+
+// ── Waiver & Result ──
+function updateResult() {
+  const card = document.getElementById('resultCard');
+  if (!selectedLevel) {
+    card.innerHTML = `<div class="no-selection"><div class="icon">☝️</div>請先在上方選擇方案<br>這裡會顯示完整保障內容</div>`;
+    return;
+  }
+
+  const plan = PLANS[selectedPlanType][selectedLevel];
+  const hasWaiver = document.getElementById('waiverToggle').checked;
+  const typeLabel = selectedPlanType === 'A' ? '重大傷病＋醫療' : '醫療';
+  const isA = selectedPlanType === 'A';
+
+  card.innerHTML = `
+    <div class="result-header">
+      <h3>${plan.emoji} ${plan.name}</h3>
+      <div class="sub">${typeLabel} ${hasWaiver ? '＋ 豁免保費' : ''}</div>
+    </div>
+
+    ${buildDetailCards(plan, isA)}
+
+    ${hasWaiver ? `
+    <div class="detail-card-row" style="margin-top:8px">
+      <div class="detail-card-bar" style="background:#F5C89A"></div>
+      <div class="detail-card-body" style="background:#FFF8EB">
+        <div class="detail-card-label">🛡️ 豁免保費</div>
+        <div class="detail-card-value">要保人身故、失能或重大疾病<br>30年期間保費全免，保障持續</div>
+      </div>
+      <div class="detail-card-badge" style="background:#E8A020">已加購</div>
+    </div>` : ''}
+  `;
+}
+
+// ── Backend config (Google Sheets via Apps Script) ──
+// 沿用原本表單送出的同一支 Apps Script 網址；只要在 Code.gs 裡加上 doGet(action=config)，
+// 這支網址就能同時服務「讀取後台設定」與「送出表單」兩件事，不用重新申請新網址。
+const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbymSOjuaVWEzTYTaz7ULO79HjSIbrl0S0St4Q9TjCpwdTTamup_tgcgFCQ-oB1PW2ta/exec';
+
+async function loadRemoteConfig() {
+  try {
+    const res = await fetch(`${SCRIPT_URL}?action=config`);
+    const data = await res.json();
+
+    if (data.customerName) {
+      const title = `${data.customerName}的保單需求分析`;
+      document.title = title;
+      document.getElementById('pageTitle').textContent = title;
+    }
+
+    const contactSection = document.getElementById('contactSection');
+    if (contactSection) {
+      contactSection.style.display = (data.showContactForm === false) ? 'none' : '';
+    }
+
+    if (data.plans && data.plans.A && data.plans.B) {
+      PLANS = data.plans;
+    }
+  } catch (err) {
+    console.warn('讀取後台設定失敗，改用頁面內建的預設內容', err);
+  }
+}
+
+async function submitForm() {
+  const name = document.getElementById('fName').value.trim();
+  const lineId = document.getElementById('fLine').value.trim();
+  const phone4 = document.getElementById('fPhone').value.trim();
+  const ownerBirth = document.getElementById('fOwnerBirth').value;
+
+  if (!name) { showToast('請填寫您的稱呼'); return; }
+  if (!lineId) { showToast('請填寫 Line ID'); return; }
+  if (!phone4 || phone4.length !== 4) { showToast('請填寫手機末四碼（4位數字）'); return; }
+  if (!ownerBirth) { showToast('請填寫要保人出生年月日'); return; }
+  if (!selectedLevel) { showToast('請先選擇一個方案'); return; }
+
+  const btn = document.getElementById('submitBtn');
+  btn.disabled = true;
+  btn.textContent = '送出中...';
+
+  const plan = PLANS[selectedPlanType][selectedLevel];
+  const payload = {
+    name,
+    lineId,
+    phone4,
+    ownerBirth,
+    planType: selectedPlanType === 'A' ? '重大傷病＋醫療' : '終身醫療',
+    planLevel: plan.name,
+    waiver: document.getElementById('waiverToggle').checked
+  };
+
+  try {
+    await fetch(SCRIPT_URL, {
+      method: 'POST',
+      mode: 'no-cors',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload)
+    });
+    showToast('✅ 已送出！婷雯會盡快與您聯繫');
+    btn.textContent = '已送出 ✓';
+  } catch (err) {
+    showToast('送出失敗，請直接加 Line: viola902');
+    btn.disabled = false;
+    btn.textContent = '送出需求，請婷雯報價 🛡️';
+  }
+}
+
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 3000);
+}
+
+// ── Init ──
+(async function init() {
+  await loadRemoteConfig();
+  drawPie();
+  renderPlanCards();
+})();
+</script>
+</body>
+</html>
